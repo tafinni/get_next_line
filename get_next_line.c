@@ -6,7 +6,7 @@
 /*   By: tfinni <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 16:28:35 by tfinni            #+#    #+#             */
-/*   Updated: 2022/12/01 18:21:47 by tfinni           ###   ########.fr       */
+/*   Updated: 2023/01/14 21:02:47 by tfinni           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ static char	*ft_line(char *buffer)
 	return (line);
 }
 
-char	*ft_newtext(char *text)
+static char	*ft_newtext(char *text)
 {
 	int		i;
 	int		y;
@@ -66,27 +66,12 @@ char	*ft_newtext(char *text)
 	return (newtext);
 }
 
-static char	*ft_join(char *text, char *buffer, int rsize)
-{
-	char	*newtext;
-
-	buffer[rsize] = '\0';
-	newtext = ft_strjoin(text, buffer);
-	free(text);
-	return (newtext);
-}
-
 static char	*ft_readuntil(int fd, char *text, char *buffer)
 {
 	int	rsize;
 
 	rsize = 1;
-	if (ft_strchr(text, '\n') != NULL)
-	{
-		free(buffer);
-		return (text);
-	}
-	while (rsize > 0 && ft_strchr(text, '\n') == NULL)
+	while (rsize != 0 && ft_strchr(text, '\n') == NULL)
 	{
 		rsize = read(fd, buffer, BUFFER_SIZE);
 		if (rsize < 0)
@@ -94,7 +79,8 @@ static char	*ft_readuntil(int fd, char *text, char *buffer)
 			free(buffer);
 			return (NULL);
 		}
-		text = ft_join(text, buffer, rsize);
+		buffer[rsize] = '\0';
+		text = ft_getstrjoin(text, buffer);
 	}
 	free(buffer);
 	return (text);
@@ -122,7 +108,7 @@ char	*get_next_line(int fd)
 		*text = '\0';
 	}
 	text = ft_readuntil(fd, text, buffer);
-	if (!*text)
+	if (!text)
 		return (NULL);
 	line = ft_line(text);
 	text = ft_newtext(text);
